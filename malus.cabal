@@ -38,4 +38,4 @@ test-suite malus-test
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/malus
+  location: https://github.com/apisarek/malus
