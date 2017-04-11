@@ -1,6 +1,8 @@
 module Main where
 
 import Lib
+import System.Directory
 
 main :: IO ()
-main = someFunc
+main = putStrLn "ELO"
+
