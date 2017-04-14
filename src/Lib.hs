@@ -6,7 +6,10 @@ module Lib
     , spamMails
     , allMails
     , rmdups
-    , prepareDict
+    , prepareAndSaveDict
+    , readDict
+    , vectorizeMail
+    , readTrainingDataset
     ) where
 
 import System.Directory
@@ -43,7 +46,11 @@ nonSpamMails = do
 allMails = do
   spam <- spamMails
   nonSpam <- nonSpamMails
-  return $ map preprocessEmail (spam ++ nonSpam)
+  return $ (spam ++ nonSpam)
+
+allMailsPreprocessed = do
+  mails <- allMails
+  return $ map preprocessEmail mails
 
 
 
@@ -55,11 +62,31 @@ lengthGreaterThanTwo word = length word > 2
 rmdups :: (Ord a) => [a] -> [a]
 rmdups = map head . filter (\set -> length set >= 10) . group . sort
 
-prepareDict = do
-  mails <- allMails
+prepareAndSaveDict = do
+  mails <- allMailsPreprocessed
   let dict = rmdups $ concat mails
   let enumerated = zip [1..] dict
   writeFile "./dict.txt" $ intercalate "\n" $ map show enumerated
+
+readDict = do
+  text <- readFile "./dict.txt"
+  return $ map (\word -> read word :: (Int, String)) $ words text
+
+readTrainingDataset = do
+  dict <- readDict
+  spam <- spamMails
+  nonSpam <- nonSpamMails
+  let spamLabeled = zip (map (vectorizeMail dict) spam) (repeat 1)
+  let nonSpamLabeled = zip (map (vectorizeMail dict) nonSpam) (repeat 0)
+  return $ spamLabeled ++ nonSpamLabeled
+
+
+boolToDouble True = 1.0
+boolToDouble False = 0.0
+
+vectorizeMail dict mail = map boolToDouble $ map (\dictWord -> elem dictWord tokens) $ map snd dict
+  where tokens = preprocessEmail mail
+
 
 
 preprocessEmail email =
