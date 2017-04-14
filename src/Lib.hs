@@ -6,6 +6,7 @@ module Lib
     , spamMails
     , allMails
     , rmdups
+    , prepareDict
     ) where
 
 import System.Directory
@@ -52,12 +53,19 @@ toLowerWord = map toLower
 lengthGreaterThanTwo word = length word > 2
 
 rmdups :: (Ord a) => [a] -> [a]
-rmdups = map head . group . sort
+rmdups = map head . filter (\set -> length set >= 10) . group . sort
+
+prepareDict = do
+  mails <- allMails
+  let dict = rmdups $ concat mails
+  let enumerated = zip [1..] dict
+  writeFile "./dict.txt" $ intercalate "\n" $ map show enumerated
+
 
 preprocessEmail email =
-  (map toLowerWord) .
-  (filter lengthGreaterThanTwo) .
-  (map filterAlpha) .
-  (filter containsAlpha) .
+  map toLowerWord .
+  filter lengthGreaterThanTwo .
+  map filterAlpha .
+  filter containsAlpha .
   tail . -- first word is "Subject:" in every email in this dataset, so we omit it
   words $ email
