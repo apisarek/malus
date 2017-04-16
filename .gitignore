@@ -18,4 +18,5 @@ cabal.sandbox.config
 .stack-work/
 cabal.project.local
 .idea/
+*.iml
 data/lingspam_public
