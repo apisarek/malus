@@ -10,6 +10,7 @@ module Lib
     , readDict
     , vectorizeMail
     , readTrainingDataset
+    , checkEmail
     ) where
 
 import System.Directory
@@ -96,3 +97,6 @@ preprocessEmail email =
   filter containsAlpha .
   tail . -- first word is "Subject:" in every email in this dataset, so we omit it
   words $ email
+
+checkEmail :: String -> Bool
+checkEmail mail = length mail > 10
