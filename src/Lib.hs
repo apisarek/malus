@@ -1,3 +1,8 @@
+{-|
+Module      : Lib
+Description : Library used to detect spam emails.
+Copyright   : (c) Andrzej Pisarek, 2017
+-}
 module Lib
     ( someFunc
     , allPaths
