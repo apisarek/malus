@@ -4,13 +4,10 @@ Description : Library used to detect spam emails.
 Copyright   : (c) Andrzej Pisarek, 2017
 -}
 module Preprocessing
+
     ( allPaths
-    , spamPaths
     , preprocessEmail
     , spamMails
-    , allMails
-    , allPaths
-    , spamPaths
     , rmdups
     , prepareAndSaveDict
     , readDict
