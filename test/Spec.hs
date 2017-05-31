@@ -2,7 +2,7 @@ module Main where -- Cabal won't allow Spec module, it needs Main to start tests
 
 import Test.Hspec
 import Test.QuickCheck
-import Lib (checkEmail)
+import Preprocessing (checkEmail)
 
 main :: IO ()
 main = hspec $ do

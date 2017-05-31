@@ -17,7 +17,7 @@ import Web.Scotty
 import Data.Aeson (FromJSON)
 import GHC.Generics
 import Network.HTTP.Types.Status
-import Lib (allPaths, checkEmail)
+import Preprocessing (allPaths, checkEmail)
 
 data Email = Email {content :: String} deriving (Show, Generic)
 instance FromJSON Email
