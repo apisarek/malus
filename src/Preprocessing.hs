@@ -4,12 +4,13 @@ Description : Library used to detect spam emails.
 Copyright   : (c) Andrzej Pisarek, 2017
 -}
 module Preprocessing
-    ( someFunc
-    , allPaths
+    ( allPaths
     , spamPaths
     , preprocessEmail
     , spamMails
     , allMails
+    , allPaths
+    , spamPaths
     , rmdups
     , prepareAndSaveDict
     , readDict
@@ -22,8 +23,6 @@ import System.Directory
 import Data.List
 import Data.Char
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
 
 rootPath = "./data/lingspam_public/bare/"
 
@@ -33,32 +32,17 @@ allPaths = do
   innerFiles <- mapM listDirectory partFolderPaths
   return $ concat $ zipWith (\path files -> map (\file -> path ++ "/" ++ file) files) partFolderPaths innerFiles
 
-spamPaths = do
-  paths <- allPaths
-  return $ filter (\path -> isInfixOf "spmsg" path) paths
+spamPaths = filter (isInfixOf "spmsg") <$> allPaths
 
-nonSpamPaths = do
-  paths <- allPaths
-  return $ filter (\path -> not $ isInfixOf "spmsg" path) paths
+nonSpamPaths = filter (not . isInfixOf "spmsg") <$> allPaths
 
-spamMails = do
-  paths <- spamPaths
-  mapM readFile paths
+spamMails = spamPaths >>= mapM readFile
 
-nonSpamMails = do
-  paths <- nonSpamPaths
-  mapM readFile paths
+nonSpamMails = nonSpamPaths >>= mapM readFile
 
-allMails = do
-  spam <- spamMails
-  nonSpam <- nonSpamMails
-  return $ (spam ++ nonSpam)
+allMails = (++) <$> spamMails <*> nonSpamMails
 
-allMailsPreprocessed = do
-  mails <- allMails
-  return $ map preprocessEmail mails
-
-
+allMailsPreprocessed = map preprocessEmail <$> allMails
 
 filterAlpha = filter isAlpha
 containsAlpha = any isAlpha
