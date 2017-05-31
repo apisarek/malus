@@ -1,3 +1,8 @@
+{-|
+Module      : Lib
+Description : Library used to detect spam emails.
+Copyright   : (c) Andrzej Pisarek, 2017
+-}
 module Lib
     ( someFunc
     , allPaths
@@ -10,6 +15,7 @@ module Lib
     , readDict
     , vectorizeMail
     , readTrainingDataset
+    , checkEmail
     ) where
 
 import System.Directory
@@ -96,3 +102,6 @@ preprocessEmail email =
   filter containsAlpha .
   tail . -- first word is "Subject:" in every email in this dataset, so we omit it
   words $ email
+
+checkEmail :: String -> Bool
+checkEmail mail = length mail > 10

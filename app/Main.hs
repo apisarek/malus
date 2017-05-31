@@ -1,8 +1,9 @@
 module Main where
 
-import Lib
+import Rest
 import System.Directory
 
 main :: IO ()
-main = putStrLn "ELO"
-
+main = do
+   putStrLn "ELO startujemy funkcyjne swiry"
+   startServer
