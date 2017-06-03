@@ -23,25 +23,26 @@ trainAndSaveNBModel = do
   let length_non_spam = fromIntegral $ length x_non_spam
   let spam_ratio = length_spam / (length_spam + length_non_spam)
   let non_spam_ratio = 1 - spam_ratio
-  let occurrences_spam = map sum x_spam_T
-  let occurrences_non_spam = map sum x_non_spam_T
-  let occurrences_spam_smoothed = map (+1) occurrences_spam
-  let occurrences_non_spam_smoothed = map (+1) occurrences_non_spam
-  let occurrences_spam_smoothed_ratio = map (/ length_spam ) occurrences_spam_smoothed
-  let occurrences_non_spam_smoothed_ratio = map (/  length_non_spam ) occurrences_non_spam_smoothed
+  let occurencesSpamRatio = transformToOccurenceRatio length_spam x_spam_T
+  let occurencesNonSpamRatio = transformToOccurenceRatio length_non_spam x_non_spam_T
   let class_ratios = [spam_ratio, non_spam_ratio]
-  let things_to_save = [occurrences_spam_smoothed_ratio, occurrences_non_spam_smoothed_ratio, class_ratios]
+  let things_to_save = [occurencesSpamRatio, occurencesNonSpamRatio, class_ratios]
   writeFile "./model.txt" $ intercalate "\n" $ map show things_to_save
 
+transformToOccurenceRatio classLength = map $ (/ classLength) . (+1) . sum
+
+createEvaluate classRatio occurrenceRatios sample =
+  (*) classRatio $
+  product $
+  zipWith (\ratio exists -> if exists == 1 then ratio else 1 - ratio) occurrenceRatios sample
 
 readNBModel = do
   model <- readFile "./model.txt"
   let [occurrences_spam_smoothed_ratio, occurrences_non_spam_smoothed_ratio, class_ratios] = map (\word -> read word :: [Double]) $ words model
   let [spam_ratio, non_spam_ratio] = class_ratios
-  let evaluate_spam ratios sample = (*) spam_ratio $ product $ zipWith (\ratio exists -> if exists == 1 then ratio else 1 - ratio) ratios sample
-  let evaluate_non_spam ratios sample = (*) non_spam_ratio $ product $ zipWith (\ratio exists -> if exists == 1 then ratio else 1 - ratio) ratios sample
-  let evaluate sample = evaluate_spam occurrences_spam_smoothed_ratio sample > evaluate_non_spam occurrences_non_spam_smoothed_ratio sample
-  return evaluate
+  let evaluateSpam = createEvaluate spam_ratio occurrences_spam_smoothed_ratio
+  let evaluateNonSpam = createEvaluate non_spam_ratio occurrences_non_spam_smoothed_ratio
+  return $ (>) <$> evaluateSpam <*> evaluateNonSpam
 
 loadEvaluateNBModel :: IO (String -> Bool)
 loadEvaluateNBModel = do
