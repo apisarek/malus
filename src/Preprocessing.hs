@@ -4,8 +4,8 @@ Description : Library used to detect spam emails.
 Copyright   : (c) Andrzej Pisarek, 2017
 -}
 module Preprocessing
-
     ( allPaths
+    , allMails
     , preprocessEmail
     , spamMails
     , rmdups
@@ -71,6 +71,7 @@ readTrainingDataset = do
 boolToDouble True = 1.0
 boolToDouble False = 0.0
 
+vectorizeMail :: Fractional b => [(a, [Char])] -> String -> [b]
 vectorizeMail dict mail = map boolToDouble $ map (\dictWord -> elem dictWord tokens) $ map snd dict
   where tokens = preprocessEmail mail
 
