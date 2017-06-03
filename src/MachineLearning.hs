@@ -15,8 +15,8 @@ import Data.List
 trainAndSaveNBModel :: IO ()
 trainAndSaveNBModel = do
   dataset <- readTrainingDataset
-  let x_spam = [sample | (sample, spam) <- dataset, spam == 1]
-  let x_non_spam = [sample | (sample, spam) <- dataset, spam == 0]
+  let x_spam = [sample | (sample, is_spam) <- dataset, is_spam == 1]
+  let x_non_spam = [sample | (sample, is_spam) <- dataset, is_spam == 0]
   let x_spam_T = transpose x_spam
   let x_non_spam_T = transpose x_non_spam
   let length_spam = fromIntegral $ length x_spam
