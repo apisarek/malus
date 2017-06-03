@@ -35,8 +35,8 @@ routes = do
 checkSpamEmail :: ActionM ()
 checkSpamEmail = do
   mail <- (jsonData :: ActionM Email) `rescue` (const next)
---  evaluate <- loadEvaluateNBModel
-  json $ checkEmail $ content mail
+  evaluate <- liftAndCatchIO loadEvaluateNBModel
+  json $ evaluate $ content mail
 
 checkSpamError :: ActionM ()
 checkSpamError = do
