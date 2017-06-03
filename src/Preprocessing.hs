@@ -15,7 +15,6 @@ import System.Directory
 import Data.List
 import Data.Char
 
-
 rootPath = "./data/lingspam_public/bare/"
 
 allPaths = do
