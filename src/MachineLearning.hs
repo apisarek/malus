@@ -38,10 +38,10 @@ createEvaluate classRatio occurrenceRatios sample =
 
 readNBModel = do
   model <- readFile "./model.txt"
-  let [occurrences_spam_smoothed_ratio, occurrences_non_spam_smoothed_ratio, class_ratios] = map (\word -> read word :: [Double]) $ words model
-  let [spam_ratio, non_spam_ratio] = class_ratios
-  let evaluateSpam = createEvaluate spam_ratio occurrences_spam_smoothed_ratio
-  let evaluateNonSpam = createEvaluate non_spam_ratio occurrences_non_spam_smoothed_ratio
+  let [occurrencesSpamRatio, occurrencesNonSpamRatio, classRatios] = map (\word -> read word :: [Double]) $ words model
+  let [spamRatio, nonSpamRatio] = classRatios
+  let evaluateSpam = createEvaluate spamRatio occurrencesSpamRatio
+  let evaluateNonSpam = createEvaluate nonSpamRatio occurrencesNonSpamRatio
   return $ (>) <$> evaluateSpam <*> evaluateNonSpam
 
 loadEvaluateNBModel :: IO (String -> Bool)
