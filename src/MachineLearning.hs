@@ -35,7 +35,7 @@ trainAndSaveNBModel = do
 
 readNBModel = do
   model <- readFile "./model.txt"
-  let [occurrences_spam_smoothed_ratio, occurrences_non_spam_smoothed_ratio, class_ratios] = map (\word -> read word :: [Float]) $ words model
+  let [occurrences_spam_smoothed_ratio, occurrences_non_spam_smoothed_ratio, class_ratios] = map (\word -> read word :: [Double]) $ words model
   let [spam_ratio, non_spam_ratio] = class_ratios
   let evaluate_spam ratios sample = (*) spam_ratio $ product $ zipWith (\ratio exists -> if exists == 1 then ratio else 1 - ratio) ratios sample
   let evaluate_non_spam ratios sample = (*) non_spam_ratio $ product $ zipWith (\ratio exists -> if exists == 1 then ratio else 1 - ratio) ratios sample
