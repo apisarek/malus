@@ -49,5 +49,3 @@ loadEvaluateNBModel = do
   evaluateOnVectorized <- readNBModel
   dict <- readDict
   return $ evaluateOnVectorized . (vectorizeMail dict)
-
-
