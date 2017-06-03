@@ -11,6 +11,7 @@ module MachineLearning
 import Preprocessing
 import Data.List
 
+trainAndSaveNBModel :: IO ()
 trainAndSaveNBModel = do
   dataset <- readTrainingDataset
   let x_spam = [sample | (sample, spam) <- dataset, spam == 1]
@@ -41,6 +42,7 @@ readNBModel = do
   let evaluate sample = evaluate_spam occurrences_spam_smoothed_ratio sample > evaluate_non_spam occurrences_non_spam_smoothed_ratio sample
   return evaluate
 
+loadEvaluateNBModel :: IO (String -> Bool)
 loadEvaluateNBModel = do
   evaluateOnVectorized <- readNBModel
   dict <- readDict
