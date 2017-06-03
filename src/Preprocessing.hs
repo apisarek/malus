@@ -61,7 +61,6 @@ readTrainingDataset = do
   let nonSpamLabeled = zip (map (vectorizeMail dict) nonSpam) (repeat 0)
   return $ spamLabeled ++ nonSpamLabeled
 
-
 boolToDouble True = 1.0
 boolToDouble False = 0.0
 
