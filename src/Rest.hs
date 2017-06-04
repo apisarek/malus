@@ -17,7 +17,7 @@ import Web.Scotty
 import Data.Aeson (FromJSON)
 import GHC.Generics
 import Network.HTTP.Types.Status
-import Preprocessing (allPaths, checkEmail)
+import MachineLearning (loadEvaluateNBModel)
 
 data Email = Email {content :: String} deriving (Show, Generic)
 instance FromJSON Email
@@ -34,7 +34,8 @@ routes = do
 checkSpamEmail :: ActionM ()
 checkSpamEmail = do
   mail <- (jsonData :: ActionM Email) `rescue` (const next)
-  json $ checkEmail $ content mail
+  evaluate <- liftAndCatchIO loadEvaluateNBModel
+  json $ evaluate $ content mail
 
 checkSpamError :: ActionM ()
 checkSpamError = do

@@ -4,25 +4,16 @@ Description : Library used to detect spam emails.
 Copyright   : (c) Andrzej Pisarek, 2017
 -}
 module Preprocessing
-    ( allPaths
-    , spamPaths
-    , preprocessEmail
-    , spamMails
-    , allMails
-    , allPaths
-    , spamPaths
-    , rmdups
+    ( preprocessEmail
     , prepareAndSaveDict
     , readDict
     , vectorizeMail
     , readTrainingDataset
-    , checkEmail
     ) where
 
 import System.Directory
 import Data.List
 import Data.Char
-
 
 rootPath = "./data/lingspam_public/bare/"
 
@@ -70,14 +61,12 @@ readTrainingDataset = do
   let nonSpamLabeled = zip (map (vectorizeMail dict) nonSpam) (repeat 0)
   return $ spamLabeled ++ nonSpamLabeled
 
-
 boolToDouble True = 1.0
 boolToDouble False = 0.0
 
+vectorizeMail :: Fractional b => [(a, [Char])] -> String -> [b]
 vectorizeMail dict mail = map boolToDouble $ map (\dictWord -> elem dictWord tokens) $ map snd dict
   where tokens = preprocessEmail mail
-
-
 
 preprocessEmail email =
   map toLowerWord .
@@ -86,6 +75,3 @@ preprocessEmail email =
   filter containsAlpha .
   tail . -- first word is "Subject:" in every email in this dataset, so we omit it
   words $ email
-
-checkEmail :: String -> Bool
-checkEmail mail = length mail > 10
