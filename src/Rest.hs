@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+
 {-|
 Module      : Rest
 Description : Simple REST server for our spam detection library.
@@ -9,6 +10,7 @@ Rest server listens for POST requests on "/spam".
 POST body should be: { "content": "yourMail" }.
 Returns true if the given mail is a spam mail.
 -}
+
 module Rest
     ( startServer
     ) where
@@ -19,25 +21,25 @@ import GHC.Generics
 import Network.HTTP.Types.Status
 import MachineLearning (loadEvaluateNBModel)
 
-data Email = Email {content :: String} deriving (Show, Generic)
-instance FromJSON Email
 
 -- | Starts REST server on port 3000.
 startServer :: IO ()
+
+
+data Email = Email {content :: String} deriving (Show, Generic)
+instance FromJSON Email
+
 startServer = scotty 3000 routes
 
-routes :: ScottyM ()
 routes = do
   post "/spam" checkSpamEmail
   post "/spam" checkSpamError
 
-checkSpamEmail :: ActionM ()
 checkSpamEmail = do
   mail <- (jsonData :: ActionM Email) `rescue` (const next)
   evaluate <- liftAndCatchIO loadEvaluateNBModel
   json $ evaluate $ content mail
 
-checkSpamError :: ActionM ()
 checkSpamError = do
   text "Body should be: { \"content\": \"yourMail\" }"
   status badRequest400

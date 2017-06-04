@@ -12,7 +12,14 @@ module MachineLearning
 import Preprocessing
 import Data.List
 
+
+-- | Train model using Naive Bayes algorithm and save it to a model.txt file for a future use.
 trainAndSaveNBModel :: IO ()
+
+-- | Load saved model from model.txt file and use it to evaluate mails.
+loadEvaluateNBModel :: IO (String -> Bool)
+
+
 trainAndSaveNBModel = do
   dataset <- readTrainingDataset
   let x_spam = [sample | (sample, is_spam) <- dataset, is_spam == 1]
@@ -27,7 +34,15 @@ trainAndSaveNBModel = do
   let occurencesNonSpamRatio = transformToOccurenceRatio length_non_spam x_non_spam_T
   let class_ratios = [spam_ratio, non_spam_ratio]
   let things_to_save = [occurencesSpamRatio, occurencesNonSpamRatio, class_ratios]
-  writeFile "./model.txt" $ intercalate "\n" $ map show things_to_save
+  writeFile modelPath $ intercalate "\n" $ map show things_to_save
+
+loadEvaluateNBModel = do
+  evaluateOnVectorized <- readNBModel
+  dict <- readDict
+  return $ evaluateOnVectorized . (vectorizeMail dict)
+
+
+modelPath = "./model.txt"
 
 transformToOccurenceRatio classLength = map $ (/ classLength) . (+1) . sum
 
@@ -37,15 +52,9 @@ createEvaluate classRatio occurrenceRatios sample =
   zipWith (\ratio exists -> if exists == 1 then ratio else 1 - ratio) occurrenceRatios sample
 
 readNBModel = do
-  model <- readFile "./model.txt"
+  model <- readFile modelPath
   let [occurrencesSpamRatio, occurrencesNonSpamRatio, classRatios] = map (\word -> read word :: [Double]) $ words model
   let [spamRatio, nonSpamRatio] = classRatios
   let evaluateSpam = createEvaluate spamRatio occurrencesSpamRatio
   let evaluateNonSpam = createEvaluate nonSpamRatio occurrencesNonSpamRatio
   return $ (>) <$> evaluateSpam <*> evaluateNonSpam
-
-loadEvaluateNBModel :: IO (String -> Bool)
-loadEvaluateNBModel = do
-  evaluateOnVectorized <- readNBModel
-  dict <- readDict
-  return $ evaluateOnVectorized . (vectorizeMail dict)
