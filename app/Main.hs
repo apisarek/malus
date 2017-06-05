@@ -5,5 +5,5 @@ import System.Directory
 
 main :: IO ()
 main = do
-   putStrLn "ELO startujemy funkcyjne swiry"
+   putStrLn "Starting server..."
    startServer
