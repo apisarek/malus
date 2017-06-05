@@ -2,7 +2,7 @@ module Main where -- Cabal won't allow Spec module, it needs Main to start tests
 
 import Test.Hspec
 import Test.QuickCheck
-import Preprocessing(preprocessEmail, vectorizeMail, readDict)
+import Preprocessing(preprocessEmail, vectorizeMail, commonWords)
 
 
 createMail :: [Char] -> [Char]
@@ -68,3 +68,13 @@ main = hspec $ do
                 \mail -> (length $
                     vectorizeMail dict (createMail $ mail :: String)
                 ) == dictLength
+
+
+    describe "commonWords" $ do
+        it "removes rare words (occurences < 10)" $ do
+            let words = replicate 4 "is" ++ ["bravo"] ++ replicate 7 "johny"
+            commonWords words `shouldBe` []
+
+        it "does not return duplicates" $ do
+            let words = replicate 20 "a"
+            commonWords words `shouldBe` ["a"]

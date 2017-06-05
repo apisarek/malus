@@ -7,6 +7,7 @@ Copyright   : (c) Andrzej Pisarek, 2017
 module Preprocessing
     ( preprocessEmail
     , vectorizeMail
+    , commonWords
     , prepareAndSaveDict
     , readDict
     , readTrainingDataset
@@ -22,6 +23,9 @@ preprocessEmail :: String -> [[Char]]
 
 -- | Preprocesses an email and vectorizes it.
 vectorizeMail :: Fractional b => [(a, [Char])] -> String -> [b]
+
+-- | Returns unique words with 10 or more occurrences in the list.
+commonWords :: [[Char]] -> [[Char]]
 
 -- | Creates a dictionary of mails' words and saves it to a dict.txt file.
 prepareAndSaveDict :: IO ()
@@ -47,9 +51,11 @@ vectorizeMail dict mail = map boolToDouble $
   map snd dict
   where tokens = preprocessEmail mail
 
+commonWords = map head . filter (\set -> length set >= 10) . group . sort
+
 prepareAndSaveDict = do
   mails <- allMailsPreprocessed
-  let dict = rmdups $ concat mails
+  let dict = commonWords $ concat mails
   let enumerated = zip [1..] dict
   writeFile dictPath $ intercalate "\n" $ map show enumerated
 
@@ -115,6 +121,3 @@ allMails = (++) <$> spamMails <*> nonSpamMails
 
 allMailsPreprocessed :: IO [[[Char]]]
 allMailsPreprocessed = map preprocessEmail <$> allMails
-
-rmdups :: [[Char]] -> [[Char]]
-rmdups = map head . filter (\set -> length set >= 10) . group . sort
