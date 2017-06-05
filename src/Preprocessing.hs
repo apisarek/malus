@@ -33,7 +33,8 @@ readDict :: IO [(Int, String)]
 readTrainingDataset :: IO [([Double], Integer)]
 
 
-preprocessEmail email =
+preprocessEmail email | words email == [] = []
+                      | otherwise =
   map toLowerWord .
   filter lengthGreaterThanTwo .
   map filterAlpha .

@@ -22,19 +22,17 @@ loadEvaluateNBModel :: IO (String -> Bool)
 
 trainAndSaveNBModel = do
   dataset <- readTrainingDataset
-  let x_spam = [sample | (sample, is_spam) <- dataset, is_spam == 1]
-  let x_non_spam = [sample | (sample, is_spam) <- dataset, is_spam == 0]
-  let x_spam_T = transpose x_spam
-  let x_non_spam_T = transpose x_non_spam
-  let length_spam = fromIntegral $ length x_spam
-  let length_non_spam = fromIntegral $ length x_non_spam
-  let spam_ratio = length_spam / (length_spam + length_non_spam)
-  let non_spam_ratio = 1 - spam_ratio
-  let occurrencesSpamRatio = transformToOccurrenceRatio length_spam x_spam_T
-  let occurrencesNonSpamRatio = transformToOccurrenceRatio length_non_spam x_non_spam_T
-  let class_ratios = [spam_ratio, non_spam_ratio]
-  let things_to_save = [occurrencesSpamRatio, occurrencesNonSpamRatio, class_ratios]
-  writeFile modelPath $ intercalate "\n" $ map show things_to_save
+  let xSpam = [sample | (sample, isSpam) <- dataset, isSpam == 1]
+  let xNonSpam = [sample | (sample, isSpam) <- dataset, isSpam == 0]
+  let lengthSpam = fromIntegral $ length xSpam
+  let lengthNonSpam = fromIntegral $ length xNonSpam
+  let spamRatio = lengthSpam / (lengthSpam + lengthNonSpam)
+  let nonSpamRatio = 1 - spamRatio
+  let occurrencesSpamRatio = transformToOccurrenceRatio lengthSpam $ transpose xSpam
+  let occurrencesNonSpamRatio = transformToOccurrenceRatio lengthNonSpam $ transpose xNonSpam
+  let classRatios = [spamRatio, nonSpamRatio]
+  let thingsToSave = [occurrencesSpamRatio, occurrencesNonSpamRatio, classRatios]
+  writeFile modelPath $ intercalate "\n" $ map show thingsToSave
 
 loadEvaluateNBModel = do
   evaluateOnVectorized <- readNBModel
