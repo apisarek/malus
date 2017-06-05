@@ -23,10 +23,10 @@ preprocessEmail :: String -> [[Char]]
 -- | Preprocesses an email and vectorizes it.
 vectorizeMail :: Fractional b => [(a, [Char])] -> String -> [b]
 
--- | Creates a dictionary of spam mails' words and saves it to a dict.txt file.
+-- | Creates a dictionary of mails' words and saves it to a dict.txt file.
 prepareAndSaveDict :: IO ()
 
--- | Loads a spam words' dictionary from a previously saved file.
+-- | Loads a words' dictionary from a previously saved file.
 readDict :: IO [(Int, String)]
 
 -- | Loads and prepares an email dataset for Machine Learning spam detection.
@@ -56,7 +56,6 @@ readDict = do
   text <- readFile dictPath
   return $ map (\word -> read word :: (Int, String)) $ words text
 
-
 readTrainingDataset = do
   dict <- readDict
   spam <- spamMails
@@ -65,35 +64,56 @@ readTrainingDataset = do
   let nonSpamLabeled = zip (map (vectorizeMail dict) nonSpam) (repeat 0)
   return $ spamLabeled ++ nonSpamLabeled
 
+
+rootPath :: [Char]
 rootPath = "./data/lingspam_public/bare/"
+
+dictPath :: [Char]
 dictPath = "./dict.txt"
 
+boolToDouble :: Fractional t => Bool -> t
 boolToDouble True = 1.0
 boolToDouble False = 0.0
 
+filterAlpha :: [Char] -> [Char]
 filterAlpha = filter isAlpha
+
+containsAlpha :: [Char] -> Bool
 containsAlpha = any isAlpha
+
+toLowerWord :: [Char] -> [Char]
 toLowerWord = map toLower
+
+lengthGreaterThanTwo :: Foldable t => t a -> Bool
 lengthGreaterThanTwo word = length word > 2
 
-rmdups :: (Ord a) => [a] -> [a]
-rmdups = map head . filter (\set -> length set >= 10) . group . sort
-
+allPaths :: IO [[Char]]
 allPaths = do
   partFoldersNames <- listDirectory rootPath
   let partFolderPaths = map (\folder -> rootPath ++ folder) partFoldersNames
   innerFiles <- mapM listDirectory partFolderPaths
-  return $ concat $ zipWith (\path files -> map (\file -> path ++ "/" ++ file) files) partFolderPaths innerFiles
+  return $ concat $ zipWith filesWithPaths partFolderPaths innerFiles
 
+filesWithPaths :: [Char] -> [[Char]] -> [[Char]]
+filesWithPaths path files = map (\file -> path ++ "/" ++ file) files
+
+spamPaths :: IO [[Char]]
 spamPaths = filter (isInfixOf "spmsg") <$> allPaths
 
+nonSpamPaths :: IO [[Char]]
 nonSpamPaths = filter (not . isInfixOf "spmsg") <$> allPaths
 
+spamMails :: IO [String]
 spamMails = spamPaths >>= mapM readFile
 
+nonSpamMails :: IO [String]
 nonSpamMails = nonSpamPaths >>= mapM readFile
 
+allMails :: IO [String]
 allMails = (++) <$> spamMails <*> nonSpamMails
 
+allMailsPreprocessed :: IO [[[Char]]]
 allMailsPreprocessed = map preprocessEmail <$> allMails
 
+rmdups :: [[Char]] -> [[Char]]
+rmdups = map head . filter (\set -> length set >= 10) . group . sort

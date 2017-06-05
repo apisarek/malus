@@ -31,15 +31,19 @@ instance FromJSON Email
 
 startServer = scotty 3000 routes
 
+
+routes :: ScottyM ()
 routes = do
   post "/spam" checkSpamEmail
   post "/spam" checkSpamError
 
+checkSpamEmail :: ActionM ()
 checkSpamEmail = do
   mail <- (jsonData :: ActionM Email) `rescue` (const next)
   evaluate <- liftAndCatchIO loadEvaluateNBModel
   json $ evaluate $ content mail
 
+checkSpamError :: ActionM ()
 checkSpamError = do
   text "Body should be: { \"content\": \"yourMail\" }"
   status badRequest400
