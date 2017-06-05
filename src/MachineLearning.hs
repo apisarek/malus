@@ -40,7 +40,7 @@ loadEvaluateNBModel = do
   return $ evaluateOnVectorized . (vectorizeMail dict)
 
 
-modelPath :: [Char]
+modelPath :: String
 modelPath = "./model.txt"
 
 transformToOccurrenceRatio :: (Foldable t, Fractional b) => b -> [t b] -> [b]

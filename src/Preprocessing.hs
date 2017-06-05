@@ -22,10 +22,10 @@ import Data.Char
 preprocessEmail :: String -> [[Char]]
 
 -- | Preprocesses an email and vectorizes it.
-vectorizeMail :: Fractional b => [(a, [Char])] -> String -> [b]
+vectorizeMail :: Fractional b => [(a, String)] -> String -> [b]
 
 -- | Returns unique words with 10 or more occurrences in the list.
-commonWords :: [[Char]] -> [[Char]]
+commonWords :: [String] -> [String]
 
 -- | Creates a dictionary of mails' words and saves it to a dict.txt file.
 prepareAndSaveDict :: IO ()
@@ -72,42 +72,42 @@ readTrainingDataset = do
   return $ spamLabeled ++ nonSpamLabeled
 
 
-rootPath :: [Char]
+rootPath :: String
 rootPath = "./data/lingspam_public/bare/"
 
-dictPath :: [Char]
+dictPath :: String
 dictPath = "./dict.txt"
 
 boolToDouble :: Fractional t => Bool -> t
 boolToDouble True = 1.0
 boolToDouble False = 0.0
 
-filterAlpha :: [Char] -> [Char]
+filterAlpha :: String -> String
 filterAlpha = filter isAlpha
 
-containsAlpha :: [Char] -> Bool
+containsAlpha :: String -> Bool
 containsAlpha = any isAlpha
 
-toLowerWord :: [Char] -> [Char]
+toLowerWord :: String -> String
 toLowerWord = map toLower
 
 lengthGreaterThanTwo :: Foldable t => t a -> Bool
 lengthGreaterThanTwo word = length word > 2
 
-allPaths :: IO [[Char]]
+allPaths :: IO [String]
 allPaths = do
   partFoldersNames <- listDirectory rootPath
   let partFolderPaths = map (\folder -> rootPath ++ folder) partFoldersNames
   innerFiles <- mapM listDirectory partFolderPaths
   return $ concat $ zipWith filesWithPaths partFolderPaths innerFiles
 
-filesWithPaths :: [Char] -> [[Char]] -> [[Char]]
+filesWithPaths :: String -> [String] -> [String]
 filesWithPaths path files = map (\file -> path ++ "/" ++ file) files
 
-spamPaths :: IO [[Char]]
+spamPaths :: IO [String]
 spamPaths = filter (isInfixOf "spmsg") <$> allPaths
 
-nonSpamPaths :: IO [[Char]]
+nonSpamPaths :: IO [String]
 nonSpamPaths = filter (not . isInfixOf "spmsg") <$> allPaths
 
 spamMails :: IO [String]
@@ -119,5 +119,5 @@ nonSpamMails = nonSpamPaths >>= mapM readFile
 allMails :: IO [String]
 allMails = (++) <$> spamMails <*> nonSpamMails
 
-allMailsPreprocessed :: IO [[[Char]]]
+allMailsPreprocessed :: IO [[String]]
 allMailsPreprocessed = map preprocessEmail <$> allMails
