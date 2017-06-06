@@ -1,5 +1,7 @@
 module Main where -- Cabal won't allow Spec module, it needs Main to start tests
 
+import Data.List
+import Data.Char
 import Test.Hspec
 import Test.QuickCheck
 import Preprocessing (preprocessEmail, vectorizeMail, commonWords)
@@ -7,6 +9,14 @@ import Preprocessing (preprocessEmail, vectorizeMail, commonWords)
 
 createMail :: [Char] -> [Char]
 createMail s = "Subject: " ++ s ++ " Thanks."
+
+allDifferent :: (Eq a) => [a] -> Bool
+allDifferent []     = True
+allDifferent (x:xs) = x `notElem` xs && allDifferent xs
+
+isSorted :: Ord a => [a] -> Bool
+isSorted [] = True
+isSorted xs = foldr (\a f b -> (a >= b) && f a) (const True) (tail xs) (head xs)
 
 main :: IO ()
 main = hspec $ do
@@ -47,6 +57,16 @@ main = hspec $ do
                                 (createMail $ mail :: String)
                             ) == (tail . preprocessEmail $ createMail mail)
 
+        it "returns lowercased words" $
+            property $
+                \mail -> all (\word -> all isLower word) $
+                preprocessEmail $ show (createMail $ mail :: String)
+
+        it "returns words longer than 2" $
+            property $
+                \mail -> all (\word -> length word > 2) $
+                preprocessEmail $ show (createMail $ mail :: String)
+
 
     describe "vectorizeMail" $ do
         -- example dictionary used for vectorization
@@ -69,6 +89,11 @@ main = hspec $ do
                     vectorizeMail dict (createMail $ mail :: String)
                 ) == dictLength
 
+        it "returns double array which contains 1.0 and 0.0 only" $
+            property $
+                \mail -> all (\d -> d == 1.0 || d == 0.0) $
+                    vectorizeMail dict (createMail $ mail :: String)
+
 
     describe "commonWords" $ do
         it "removes rare words (occurences < 10)" $ do
@@ -78,3 +103,11 @@ main = hspec $ do
         it "does not return duplicates" $ do
             let words = replicate 20 "a"
             commonWords words `shouldBe` ["a"]
+
+        it "returns unique set of words" $ do
+            property $
+                \words -> allDifferent $ commonWords (words :: [String])
+
+        it "returns sorted set of words" $ do
+            property $
+                \words -> isSorted $ commonWords (words :: [String])
