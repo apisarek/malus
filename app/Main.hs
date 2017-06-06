@@ -1,6 +1,9 @@
 module Main where
 
-import Lib
+import Rest
+import System.Directory
 
 main :: IO ()
-main = someFunc
+main = do
+   putStrLn "Starting server..."
+   startServer
