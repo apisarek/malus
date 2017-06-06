@@ -60,12 +60,12 @@ main = hspec $ do
         it "returns lowercased words" $
             property $
                 \mail -> all (\word -> all isLower word) $
-                preprocessEmail $ show (createMail $ mail :: String)
+                    preprocessEmail $ show (createMail $ mail :: String)
 
         it "returns words longer than 2" $
             property $
                 \mail -> all (\word -> length word > 2) $
-                preprocessEmail $ show (createMail $ mail :: String)
+                    preprocessEmail $ show (createMail $ mail :: String)
 
 
     describe "vectorizeMail" $ do
@@ -86,8 +86,8 @@ main = hspec $ do
         it "returns double array of length equal to dictionary's length" $
             property $
                 \mail -> (length $
-                    vectorizeMail dict (createMail $ mail :: String)
-                ) == dictLength
+                        vectorizeMail dict (createMail $ mail :: String)
+                    ) == dictLength
 
         it "returns double array which contains 1.0 and 0.0 only" $
             property $
