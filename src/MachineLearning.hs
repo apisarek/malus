@@ -22,17 +22,25 @@ loadEvaluateNBModel :: IO (String -> Bool)
 
 trainAndSaveNBModel = do
   dataset <- readTrainingDataset
-  let xSpam = [sample | (sample, isSpam) <- dataset, isSpam == 1]
-  let xNonSpam = [sample | (sample, isSpam) <- dataset, isSpam == 0]
-  let lengthSpam = fromIntegral $ length xSpam
-  let lengthNonSpam = fromIntegral $ length xNonSpam
-  let spamRatio = lengthSpam / (lengthSpam + lengthNonSpam)
-  let nonSpamRatio = 1 - spamRatio
+  let (xSpam, xNonSpam) = splitDataset dataset
+  let lengthSpam = numLength xSpam
+  let lengthNonSpam = numLength xNonSpam
+  let classRatios = calculateRatios lengthSpam lengthNonSpam
   let occurrencesSpamRatio = transformToOccurrenceRatio lengthSpam $ transpose xSpam
   let occurrencesNonSpamRatio = transformToOccurrenceRatio lengthNonSpam $ transpose xNonSpam
-  let classRatios = [spamRatio, nonSpamRatio]
   let thingsToSave = [occurrencesSpamRatio, occurrencesNonSpamRatio, classRatios]
   writeFile modelPath $ intercalate "\n" $ map show thingsToSave
+
+numLength :: (Foldable t, Num c) => t a -> c
+numLength = fromIntegral . length
+
+splitDataset dataset = (xSpam, xNonSpam)
+  where xSpam = [sample | (sample, isSpam) <- dataset, isSpam == 1]
+        xNonSpam = [sample | (sample, isSpam) <- dataset, isSpam == 0]
+
+calculateRatios lengthSpam lengthNonSpam = [lengthSpam / lengthAll, lengthNonSpam / lengthAll]
+  where lengthAll = lengthSpam + lengthNonSpam
+
 
 loadEvaluateNBModel = do
   evaluateOnVectorized <- readNBModel
